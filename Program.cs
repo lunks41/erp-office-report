@@ -18,31 +18,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddCors(c =>
+builder.Services.AddCors(options =>
 {
-    c.AddPolicy("AllowOrigin", options =>
-        options.AllowAnyOrigin()
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .WithExposedHeaders("*"));
+    // Reporting viewer can be hosted by different applications/ports.
+    // Keep CORS open for the reports API to avoid cross-origin blocks.
+    options.AddPolicy("AllowOrigin", policy =>
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .WithExposedHeaders("*"));
 });
 
-// Build configuration from single appsettings.json
-var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddEnvironmentVariables()
-    .Build();
+// appsettings.json is gitignored — copy appsettings.example.json locally.
+// WebApplication.CreateBuilder already loads appsettings.json, appsettings.{Environment}.json, and environment variables.
+builder.Services.RegisterService(builder.Configuration);
 
-// Registers application-specific services and enables built-in logging.
-builder.Services.RegisterService(builder.Configuration); // Extension method to register domain services
-
-builder.Services.AddControllers().AddNewtonsoftJson(options =>
-{
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-});
-builder.Services.AddRazorPages().AddNewtonsoftJson();
+// Do not call AddNewtonsoftJson() globally: Telerik Reporting 2026 Q1+ REST uses System.Text.Json.
+builder.Services.AddControllers();
+builder.Services.AddRazorPages();
 
 var reportsPath = System.IO.Path.Combine(builder.Environment.ContentRootPath, "Reports");
 
@@ -101,18 +94,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-// CORS must be before UseRouting() and should handle preflight requests
-app.UseCors("AllowOrigin");
-
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
+
 app.UseStaticFiles();
-
 app.UseRouting();
-
-// Authentication and Authorization middleware
+// CORS must run after UseRouting and before UseAuthentication/UseAuthorization
+// so preflight (OPTIONS) and API responses include Access-Control-* headers.
+app.UseCors("AllowOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 

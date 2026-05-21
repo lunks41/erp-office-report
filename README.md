@@ -14,5 +14,15 @@ On a server, deploy `telerik-license.txt` via secure configuration (not from the
 
 ## Configuration
 
-- `appsettings.json` — shared defaults (review secrets before pushing)
-- Use local overrides (e.g. User Secrets or environment variables) for connection strings and JWT keys in development
+1. Copy `appsettings.example.json` → `appsettings.json` and set JWT secret + SQL connection strings.
+2. `appsettings.json` is **gitignored** — never commit real secrets.
+3. `regCompany.json` maps `X-Reg-Id` headers to connection string names (safe to commit; no passwords).
+4. Optional: override via environment variables or `appsettings.Development.json` (logging only).
+
+## GitHub / deploy checklist
+
+| Push | Do not push |
+|------|-------------|
+| Source, `.csproj`, `.sln`, `Reports/**` (.trdp, images) | `telerik-license.txt` |
+| `appsettings.example.json`, `regCompany.json` | `appsettings.json` |
+| `README.md`, `.gitignore`, `telerik-license.txt.example` | `bin/`, `obj/`, `.vs/`, `*.user`, `*.rar` |

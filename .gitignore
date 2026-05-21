@@ -323,6 +323,16 @@ telerik-license.txt
 telerik-licensing.log
 **/telerik-licensing.log
 
+# Local secrets (use appsettings.example.json as template)
+appsettings.json
+**/appsettings.Production.json
+
+# Local run / publish artifacts
+run.err
+run.out
+UpgradeWizardLog.xml
+*.rar
+
 # BizTalk build output
 *.btp.cs
 *.btm.cs
