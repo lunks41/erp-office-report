@@ -1,0 +1,6 @@
+# Copy this file to telerik-license.txt (same folder) and replace the line below
+# with your Telerik license JWT from https://www.telerik.com/account/your-licenses
+# (Reporting → activate → download key / copy license key).
+#
+# The real telerik-license.txt file is gitignored and must not be pushed to GitHub.
+PASTE_YOUR_TELERIK_LICENSE_JWT_HERE
