@@ -392,3 +392,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+# Graphify knowledge graph output (local only)
+graphify-out/
+
