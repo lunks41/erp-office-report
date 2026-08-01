@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 
-namespace TelerikReportingRestService.Extensions
+namespace erpofficereport.Extensions
 {
     public static class ServiceExtension
     {

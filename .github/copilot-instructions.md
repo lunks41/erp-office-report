@@ -1,4 +1,4 @@
-﻿# TelerikReportingRestService Development Instructions
+﻿# erpofficereport Development Instructions
 
 ## UI Controls
 

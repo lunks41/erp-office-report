@@ -16,7 +16,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "TelerikReportingRestService": {
+    "erpofficereport": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "http://localhost:59655;http://172.16.31.6:83",
@@ -26,4 +26,3 @@
     }
   }
 }
-

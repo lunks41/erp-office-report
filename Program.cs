@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Telerik.Reporting.Cache.File;
 using Telerik.Reporting.Services;
-using TelerikReportingRestService.Extensions;
+using erpofficereport.Extensions;
 
 EnableTracing();
 var builder = WebApplication.CreateBuilder(args);
@@ -48,7 +48,7 @@ builder.Services.TryAddSingleton<IReportServiceConfiguration>(sp =>
 
         // In case the ReportingEngineConfiguration needs to be loaded from a specific configuration file, use the approach below:
         //ReportingEngineConfiguration = ResolveSpecificReportingConfiguration(sp.GetService<IWebHostEnvironment>()),
-        HostAppId = "TelerikReportingRestService",
+        HostAppId = "erpofficereport",
         Storage = new FileStorage(),
         ReportSourceResolver = new TypeReportSourceResolver()
             .AddFallbackResolver(new UriReportSourceResolver(reportsPath))

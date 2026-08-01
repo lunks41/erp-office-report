@@ -23,6 +23,6 @@ On a server, deploy `telerik-license.txt` via secure configuration (not from the
 
 | Push | Do not push |
 |------|-------------|
-| Source, `.csproj`, `.sln`, `Reports/**` (.trdp, images) | `telerik-license.txt` |
+| Source, `erpofficereport.csproj`, `erpofficereport.sln`, `Reports/**` (.trdp, images) | `telerik-license.txt` |
 | `appsettings.example.json`, `regCompany.json` | `appsettings.json` |
 | `README.md`, `.gitignore`, `telerik-license.txt.example` | `bin/`, `obj/`, `.vs/`, `*.user`, `*.rar` |

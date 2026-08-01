@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36717.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelerikReportingRestService", "TelerikReportingRestService.csproj", "{65530997-33BD-4C81-9CBA-4776BD3EC6A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "erpofficereport", "erpofficereport.csproj", "{65530997-33BD-4C81-9CBA-4776BD3EC6A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
