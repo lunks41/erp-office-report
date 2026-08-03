@@ -39,6 +39,11 @@ builder.Services.AddRazorPages();
 
 var reportsPath = System.IO.Path.Combine(builder.Environment.ContentRootPath, "Reports");
 
+// FileStorage() defaults to C:\WINDOWS\TEMP\{HostAppId}\... which IIS app-pool
+// identities often cannot write. Keep cache under the app so permissions are controllable.
+var reportCachePath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "ReportCache");
+Directory.CreateDirectory(reportCachePath);
+
 // Configure dependencies for ReportsController.
 builder.Services.TryAddSingleton<IReportServiceConfiguration>(sp =>
     new ReportServiceConfiguration
@@ -49,7 +54,7 @@ builder.Services.TryAddSingleton<IReportServiceConfiguration>(sp =>
         // In case the ReportingEngineConfiguration needs to be loaded from a specific configuration file, use the approach below:
         //ReportingEngineConfiguration = ResolveSpecificReportingConfiguration(sp.GetService<IWebHostEnvironment>()),
         HostAppId = "erpofficereport",
-        Storage = new FileStorage(),
+        Storage = new FileStorage(reportCachePath),
         ReportSourceResolver = new TypeReportSourceResolver()
             .AddFallbackResolver(new UriReportSourceResolver(reportsPath))
     });

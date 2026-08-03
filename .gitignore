@@ -327,6 +327,10 @@ telerik-licensing.log
 appsettings.json
 **/appsettings.Production.json
 
+# Telerik Reporting engine cache (created at runtime)
+App_Data/ReportCache/
+**/App_Data/ReportCache/
+
 # Local run / publish artifacts
 run.err
 run.out
