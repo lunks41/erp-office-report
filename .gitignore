@@ -399,3 +399,6 @@ FodyWeavers.xsd
 # Graphify knowledge graph output (local only)
 graphify-out/
 
+# Markdown files (local docs — do not push to GitHub)
+*.md
+
