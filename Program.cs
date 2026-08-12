@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,18 +16,39 @@ using erpofficereport.Extensions;
 
 EnableTracing();
 var builder = WebApplication.CreateBuilder(args);
+var isDev = builder.Environment.IsDevelopment();
 
 // Add services to the container.
 
 builder.Services.AddCors(options =>
 {
-    // Reporting viewer can be hosted by different applications/ports.
-    // Keep CORS open for the reports API to avoid cross-origin blocks.
+    var allowedOriginsRaw = builder.Configuration["Cors:AllowedOrigins"]
+                            ?? builder.Configuration["CORS_ALLOWED_ORIGINS"];
+
+    var allowedOrigins = (allowedOriginsRaw ?? string.Empty)
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .ToArray();
+
     options.AddPolicy("AllowOrigin", policy =>
-        policy.AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .WithExposedHeaders("*"));
+    {
+        if (isDev)
+        {
+            policy.AllowAnyOrigin();
+        }
+        else if (allowedOrigins.Length == 0)
+        {
+            policy.SetIsOriginAllowed(_ => false);
+        }
+        else
+        {
+            policy.SetIsOriginAllowed(origin =>
+                allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase));
+        }
+
+        policy.AllowAnyHeader()
+              .AllowAnyMethod()
+              .WithExposedHeaders("*");
+    });
 });
 
 // appsettings.json is gitignored — copy appsettings.example.json locally.
