@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Telerik.Reporting.Cache.File;
 using Telerik.Reporting.Services;
 using erpofficereport.Extensions;
+using System.Linq;
 
 EnableTracing();
 var builder = WebApplication.CreateBuilder(args);
