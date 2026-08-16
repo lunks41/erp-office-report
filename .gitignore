@@ -320,8 +320,10 @@ __pycache__/
 # Telerik Reporting license key (JWT) — never commit; use telerik-license.txt locally
 telerik-license.txt
 **/telerik-license.txt
+!telerik-license.txt.example
 telerik-licensing.log
 **/telerik-licensing.log
+**/Telerik.Licensing.LicenseInfo.cs
 
 # Local secrets (use appsettings.example.json as template)
 appsettings.json
@@ -396,9 +398,15 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+# Local Telerik package cache (offline restore when NuGet feed credentials are unavailable)
+local-packages/
+NuGet.config.user
+
 # Graphify knowledge graph output (local only)
 graphify-out/
 
+
 # Markdown files (local docs — do not push to GitHub)
 *.md
+!README.md
 

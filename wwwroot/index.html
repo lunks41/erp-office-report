@@ -20,13 +20,21 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-            const url = '/api/reports/formats';
+            // Use /version for the health check. /formats requires JWT ([Authorize]),
+            // so an unauthenticated GET falsely reported "NOT running".
+            const url = '/api/reports/version';
 
-            $.getJSON(url, function () {
-                $("#content").text("Telerik Reporting REST Service is up and running.");
+            $.getJSON(url, function (version) {
+                const label = version ? (" v" + version) : "";
+                $("#content").text("Telerik Reporting REST Service is up and running" + label + ".");
             })
                 .fail(function (data) {
-                    $("#content").html("Telerik Reporting REST Service is NOT running: <br />" + data.responseText);
+                    // 401 on other endpoints means the host is up but auth is required.
+                    if (data && data.status === 401) {
+                        $("#content").text("Telerik Reporting REST Service is up and running (authentication required).");
+                        return;
+                    }
+                    $("#content").html("Telerik Reporting REST Service is NOT running: <br />" + (data.responseText || data.statusText || "request failed"));
                 });
         });
     </script>

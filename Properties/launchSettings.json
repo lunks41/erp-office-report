@@ -16,7 +16,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "erpofficereport": {
+    "erpkendoreport": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "http://localhost:59655",
@@ -26,3 +26,4 @@
     }
   }
 }
+

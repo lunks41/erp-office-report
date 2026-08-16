@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
@@ -12,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Telerik.Reporting.Cache.File;
 using Telerik.Reporting.Services;
-using erpofficereport.Extensions;
+using apireport.Extensions;
 using System.Linq;
 
 EnableTracing();
@@ -69,51 +71,91 @@ Directory.CreateDirectory(reportCachePath);
 
 // Configure dependencies for ReportsController.
 builder.Services.TryAddSingleton<IReportServiceConfiguration>(sp =>
-    new ReportServiceConfiguration
+{
+    var fallbackResolver = new TypeReportSourceResolver()
+        .AddFallbackResolver(new UriReportSourceResolver(reportsPath));
+
+    var reportSourceResolver = new RegIdReportSourceResolver(
+        fallbackResolver,
+        sp.GetRequiredService<IHttpContextAccessor>(),
+        sp.GetRequiredService<ReportConnectionResolver>(),
+        sp.GetRequiredService<ILogger<RegIdReportSourceResolver>>());
+
+    // Support both erpkendoreport and erpofficereport via config
+    var hostAppId = builder.Configuration["ReportingConfig:HostAppId"] ?? "erpkendoreport";
+
+    return new ReportServiceConfiguration
     {
         // The default ReportingEngineConfiguration will be initialized from appsettings.json or appsettings.{EnvironmentName}.json:
         ReportingEngineConfiguration = sp.GetService<IConfiguration>(),
 
         // In case the ReportingEngineConfiguration needs to be loaded from a specific configuration file, use the approach below:
         //ReportingEngineConfiguration = ResolveSpecificReportingConfiguration(sp.GetService<IWebHostEnvironment>()),
-        HostAppId = "erpofficereport",
+        HostAppId = hostAppId,
         Storage = new FileStorage(reportCachePath),
-        ReportSourceResolver = new TypeReportSourceResolver()
-            .AddFallbackResolver(new UriReportSourceResolver(reportsPath))
-    });
+        ReportSourceResolver = reportSourceResolver,
+    };
+});
 
 // Configures JWT bearer authentication to protect API endpoints.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        // Local HTTP (erp-office → api-report) must accept Bearer tokens without HTTPS.
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,                       // Ensure token issuer matches
-            ValidateAudience = true,                     // Ensure token audience matches
-            ValidateLifetime = true,                     // Check token hasn't expired
-            ValidateIssuerSigningKey = true,             // Verify the signing key
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
             ValidAudience = builder.Configuration["JWT:ValidAudience"],
             ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+            ClockSkew = TimeSpan.FromMinutes(10),
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
                     builder.Configuration["JWT:SecretKey"] ?? string.Empty))
         };
 
-        // Configure JWT handler for SignalR
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                // Allow JWT authentication for SignalR hub connections
                 var accessToken = context.Request.Query["access_token"];
                 var path = context.HttpContext.Request.Path;
 
                 if (!string.IsNullOrEmpty(accessToken) &&
-                    path.StartsWithSegments("/notificationHub"))
+                    (path.StartsWithSegments("/notificationHub") ||
+                     path.StartsWithSegments("/api/reports") ||
+                     path.StartsWithSegments("/api/Reports")))
                 {
                     context.Token = accessToken;
                 }
 
+                // Telerik may send Authorization without the Bearer scheme.
+                if (string.IsNullOrEmpty(context.Token))
+                {
+                    var header = context.Request.Headers.Authorization.ToString();
+                    if (!string.IsNullOrWhiteSpace(header) &&
+                        !header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        context.Token = header.Trim();
+                    }
+                }
+
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                var logger = context.HttpContext.RequestServices
+                    .GetRequiredService<ILoggerFactory>()
+                    .CreateLogger("JwtBearer");
+                logger.LogWarning(
+                    context.Exception,
+                    "JWT authentication failed for {Path}: {Message}",
+                    context.Request.Path,
+                    context.Exception.Message);
                 return Task.CompletedTask;
             }
         };
@@ -122,16 +164,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// With endpoint routing, UseCors must run after UseRouting and before UseAuthentication/UseAuthorization.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
-
 app.UseStaticFiles();
+
 app.UseRouting();
-// CORS must run after UseRouting and before UseAuthentication/UseAuthorization
-// so preflight (OPTIONS) and API responses include Access-Control-* headers.
+
 app.UseCors("AllowOrigin");
+
+// Authentication and Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
 

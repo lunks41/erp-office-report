@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
-namespace erpofficereport.Extensions
+namespace apireport.Extensions
 {
     public class ApplicationDbContext : DbContext
     {

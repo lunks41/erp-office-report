@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup Label="Globals">
+	</PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<RootNamespace>apireport</RootNamespace>
+		<AssemblyName>apireport</AssemblyName>
+	</PropertyGroup>
+	<ItemGroup>
+	  <Content Include="Reports\**\*.trdp" CopyToOutputDirectory="PreserveNewest" />
+	  <Content Include="Reports\**\*.png" CopyToOutputDirectory="PreserveNewest" />
+	  <Content Include="Reports\**\*.jpg" CopyToOutputDirectory="PreserveNewest" />
+	  <Content Update="regCompany.json" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+	<!-- Local Telerik JWT — never copy to build/publish output (deploy via secure config). -->
+	<ItemGroup>
+	  <Content Remove="telerik-license.txt" />
+	  <None Update="telerik-license.txt" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.11" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
+		<PackageReference Include="Telerik.Reporting.OpenXmlRendering" Version="20.2.26.812" />
+		<PackageReference Include="Telerik.Reporting.Services.AspNetCore" Version="20.2.26.812" />
+		<PackageReference Include="Telerik.Licensing" Version="1.9.1" />
+	</ItemGroup>
+</Project>

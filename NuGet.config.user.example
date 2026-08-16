@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSourceCredentials>
+    <Telerik>
+      <add key="Username" value="YOUR_TELERIK_ACCOUNT_EMAIL" />
+      <add key="ClearTextPassword" value="YOUR_TELERIK_NUGET_API_KEY" />
+    </Telerik>
+  </packageSourceCredentials>
+</configuration>

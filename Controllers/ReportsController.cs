@@ -5,7 +5,7 @@ using System.Net.Mail;
 using Telerik.Reporting.Services;
 using Telerik.Reporting.Services.AspNetCore;
 
-namespace erpofficereport.Controllers
+namespace apireport.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]
